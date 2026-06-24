@@ -2,6 +2,7 @@ import express from "express"
 import {connectDB} from './config/db.js'
 import authRouter from './routers/auth.route.js' 
 import cors from 'cors'
+import bookRouter from './routers/book.route.js'
 const app = express()
 
 //dono server connect karane ke liye 
@@ -14,6 +15,7 @@ app.use(express.json())
 
 // router connect keya gaya hai 
 app.use('/api/v1/auth',authRouter)
+app.use('/api/books',bookRouter)
 
 // database connect keya gaya hai 
 connectDB();
