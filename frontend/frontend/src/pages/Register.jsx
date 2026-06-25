@@ -83,6 +83,7 @@ function Register() {
     name: "",
     email: "",
     password: "",
+    role: 'student',
   });
 
   const navigate = useNavigate();
@@ -111,6 +112,8 @@ function Register() {
       alert(error.response?.data?.message);
     }
   };
+
+ 
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-700 px-4">
@@ -176,6 +179,27 @@ function Register() {
               className="w-full px-4 py-3 rounded-xl bg-white/20 text-white placeholder-gray-300 outline-none border border-white/20 focus:border-white focus:ring-2 focus:ring-white"
             />
           </div>
+
+         <div>
+  <label className="block text-white mb-2">
+    Role
+  </label>
+
+  <select
+    name="role"
+    value={formData.role}
+    onChange={handleChange}
+    className="w-full px-4 py-3 rounded-xl bg-white/20 text-white outline-none border border-white/20 focus:border-white focus:ring-2 focus:ring-white"
+  >
+    <option value="student" className="text-black">
+      Student
+    </option>
+
+    <option value="admin" className="text-black">
+      Admin
+    </option>
+  </select>
+</div>
 
           <button
             type="submit"

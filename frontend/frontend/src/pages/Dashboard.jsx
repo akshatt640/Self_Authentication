@@ -1,191 +1,105 @@
 
-// function Dashboard() {
-//   const user = JSON.parse(localStorage.getItem("user"));
 
-//   return (
-//     <div>
-//       <h1>Dashboard</h1>
+import { useEffect, useState } from "react";
+import api from "../servies/bookApi.js";
 
-//       <h2>
-//         Welcome {user?.name}
-//       </h2>
-//     </div>
-//   );
-// }
-
-// export default Dashboard;
-import { useEffect } from "react";
-import api from '../servies/api.js'
-import {
-  LayoutDashboard,
-  Users,
-  BookOpen,
-  Settings,
-  Bell,
-} from "lucide-react";
-
-import { useNavigate } from "react-router-dom";
-function Dashboard() {
-
-
+const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem("user"));
+  const [books, setBooks] = useState([]);
   
-  const navigate = useNavigate();
-
-  const handleLogout = () =>{
-    localStorage.removeItem('token');
-    localStorage.removeItem('user')
-    navigate('/login');
-  }
-
   useEffect(() => {
-    const getProfile = async () => {
-
-      const token =
-        localStorage.getItem("token");
-
-      try {
-        const res = await api.get(
-          "/profile",
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-
-        console.log(res.data);
-
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    getProfile();
-
+    fetchBooks();
   }, []);
+  
+  const fetchBooks = async ()=>{
+     try{
+         const res = await api.get('/books');
+         console.log(res.data);
+         setBooks(res.data.books)
+     }catch(err){
+       console.log("book fetch nhi hoo raha hai"+err)
+     }
+  }
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col">
-        <div className="p-6 border-b border-slate-700">
-          <h1 className="text-2xl font-bold">My Dashboard</h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="flex items-center justify-between  m-8">
+        <p className="text-3xl font-bold ">
+          Student Dashboard
+        </p>
+        <p className="text-3xl font-bold">
+          Welcome  {user?.name} 👋
+        </p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-lg font-semibold">
+            Total Books
+          </h2>
+          <p className="text-3xl font-bold text-blue-600">
+            {books.length}
+          </p>
         </div>
 
-        <nav className="flex-1 p-4 space-y-3">
-          <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-slate-800 transition">
-            <LayoutDashboard size={20} />
-            Dashboard
-          </button>
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-lg font-semibold">
+            Available Books
+          </h2>
+          <p className="text-3xl font-bold text-green-600">
+            {books.filter(book => book.quantity > 0).length}
+          </p>
+        </div>
 
-          <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-slate-800 transition">
-            <Users size={20} />
-            Users
-          </button>
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-lg font-semibold">
+            Categories
+          </h2>
+          <p className="text-3xl font-bold text-purple-600">
+            {
+              [...new Set(
+                books.map(book => book.category)
+              )].length
+            }
+          </p>
+        </div>
+      </div>
 
-          <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-slate-800 transition">
-            <BookOpen size={20} />
-            Projects
-          </button>
+      {/* Books Table */}
+      <div className="bg-white rounded-xl shadow p-6">
+        <h2 className="text-2xl font-bold mb-4">
+          Library Books
+        </h2>
 
-          <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-slate-800 transition">
-            <Settings size={20} />
-            Settings
-          </button>
-        </nav>
-      </aside>
+        <table className="w-full">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left p-3">Title</th>
+              <th className="text-left p-3">Author</th>
+              <th className="text-left p-3">Category</th>
+              <th className="text-left p-3">Quantity</th>
+            </tr>
+          </thead>
 
-      {/* Main Content */}
-      <div className="flex-1">
-        {/* Navbar */}
-        <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Dashboard
-          </h1>
-
-          <div className="flex items-center gap-4">
-            
-            <Bell className="text-gray-600 cursor-pointer" />
-
-            <div className="flex items-center gap-2">
-              <img
-                src={`https://ui-avatars.com/api/?name=${user?.name}`}
-                alt="profile"
-                className="w-10 h-10 rounded-full"
-              />
-              <span className="font-medium">{user?.name}</span>
-               <button onClick={handleLogout} className="bg-red-300  hover:bg-red-400 text-white px-5 py-2 rounded-lg transition ">Logout</button>
-            </div>
-          </div>
-        </header>
-
-        {/* Dashboard Content */}
-        <main className="p-6">
-          {/* Welcome Card */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl p-8 shadow-lg">
-            <h2 className="text-3xl font-bold">
-              Welcome Back, {user?.name} 👋
-            </h2>
-            <p className="mt-2 text-blue-100">
-              Manage your projects, users and settings from one place.
-            </p>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-            <div className="bg-white rounded-xl p-6 shadow hover:shadow-lg transition">
-              <h3 className="text-gray-500">Total Users</h3>
-              <p className="text-3xl font-bold mt-2">120</p>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow hover:shadow-lg transition">
-              <h3 className="text-gray-500">Projects</h3>
-              <p className="text-3xl font-bold mt-2">25</p>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow hover:shadow-lg transition">
-              <h3 className="text-gray-500">Tasks</h3>
-              <p className="text-3xl font-bold mt-2">78</p>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow hover:shadow-lg transition">
-              <h3 className="text-gray-500">Revenue</h3>
-              <p className="text-3xl font-bold mt-2">$12,500</p>
-            </div>
-          </div>
-
-          {/* Profile Card */}
-          <div className="bg-white rounded-xl shadow mt-8 p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              User Profile
-            </h2>
-
-            <div className="flex items-center gap-5">
-              <img
-                src={`https://ui-avatars.com/api/?name=${user?.name}`}
-                alt="profile"
-                className="w-20 h-20 rounded-full"
-              />
-
-              <div>
-                <h3 className="text-lg font-bold">
-                  {user?.name}
-                </h3>
-
-                <p className="text-gray-500">
-                  {user?.email}
-                </p>
-
-                <button className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                  Edit Profile
-                </button>
-              </div>
-            </div>
-          </div>
-        </main>
+          <tbody>
+            {books.map((book) => (
+              <tr
+                key={book._id}
+                className="border-b hover:bg-gray-50"
+              >
+                <td className="p-3">{book.title}</td>
+                <td className="p-3">{book.author}</td>
+                <td className="p-3">{book.category}</td>
+                <td className="p-3">{book.quantity}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
-}
+};
+
+
 
 export default Dashboard;
